@@ -45,7 +45,11 @@ jobs:
           export GPG_TTY=$(tty)
           VERSION="${{ steps.check_condition.outputs.version }}"
           ./gradlew publishMavenPublicationToMavenRepository -PVERSION=$VERSION
-          echo "✅ Upload artifact with staging repository."
           echo "Artifact version: $VERSION"
-          ./gradlew jreleaseConfig -PVERSION=$VERSION
-          ./gradlew jreleaserFullRelease -PVERSION=$VERSION
+          ./gradlew jreleaserFullRelease -PVERSION=$VERSION --stacktrace --info
+
+      - name: JReleaser Debugging log
+        if: failure()
+        run: |
+          cat build/jreleaser/trace.log
+          cat build/jreleaser/output.properties  # 배포 결과 상태도 확인
