@@ -7,6 +7,8 @@ import org.springframework.expression.spel.support.StandardEvaluationContext
 import java.lang.reflect.Method
 import kotlin.collections.component1
 import kotlin.collections.component2
+import kotlin.reflect.KClass
+import kotlin.reflect.jvm.kotlinFunction
 
 abstract class CacheHandler<T> {
     private val parser: ExpressionParser = SpelExpressionParser()
@@ -46,6 +48,22 @@ abstract class CacheHandler<T> {
             resolveKey(fieldName, paramMap)
         } else {
             paramMap[fieldName] ?: throw IllegalArgumentException("Parameter not found: '$fieldName'")
+        }
+    }
+
+    protected fun Method.resolveReturnType(): KClass<*>? {
+        // 1. Kotlin/suspend 함수
+        kotlinFunction?.returnType?.classifier?.let {
+            return it as? KClass<*> ?: Any::class
+        }
+
+        // 2. Java 함수 또는 kotlinFunction이 null인 경우
+        // primitive/wrapper 모두 kotlin이 처리
+        return try {
+            returnType.kotlin
+        } catch (e: UnsupportedOperationException) {
+            // void, array 등 kotlin 변환 불가한 경우
+            null
         }
     }
 
