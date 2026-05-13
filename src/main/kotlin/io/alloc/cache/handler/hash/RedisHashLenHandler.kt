@@ -23,9 +23,6 @@ class RedisHashLenHandler(
         return when (signature.method.returnType) {
             Int::class.java, Int::class.javaObjectType -> size.toInt()
             Long::class.java, Long::class.javaObjectType -> size.toLong()
-            Float::class.java, Float::class.javaObjectType -> size.toFloat()
-            Double::class.java, Double::class.javaObjectType -> size.toDouble()
-            String::class.java, String::class.javaObjectType -> size.toString()
             else -> size
         }
     }
