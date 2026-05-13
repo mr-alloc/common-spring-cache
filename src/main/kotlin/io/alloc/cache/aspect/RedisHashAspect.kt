@@ -1,13 +1,17 @@
 package io.alloc.cache.aspect
 
 import io.alloc.cache.annotation.hash.RedisHashEvict
+import io.alloc.cache.annotation.hash.RedisHashFetch
 import io.alloc.cache.annotation.hash.RedisHashGet
 import io.alloc.cache.annotation.hash.RedisHashGetAll
+import io.alloc.cache.annotation.hash.RedisHashLen
 import io.alloc.cache.annotation.hash.RedisHashRefresh
 import io.alloc.cache.annotation.hash.RedisHashSet
 import io.alloc.cache.handler.hash.RedisHashEvictHandler
+import io.alloc.cache.handler.hash.RedisHashFetchHandler
 import io.alloc.cache.handler.hash.RedisHashGetAllHandler
 import io.alloc.cache.handler.hash.RedisHashGetHandler
+import io.alloc.cache.handler.hash.RedisHashLenHandler
 import io.alloc.cache.handler.hash.RedisHashRefreshHandler
 import io.alloc.cache.handler.hash.RedisHashSetHandler
 import org.aspectj.lang.ProceedingJoinPoint
@@ -24,6 +28,8 @@ class RedisHashAspect(
     private val hashEvictHandler: RedisHashEvictHandler,
     private val hashGetAllHandler: RedisHashGetAllHandler,
     private val hashRefreshHandler: RedisHashRefreshHandler,
+    private val hashLenHandler: RedisHashLenHandler,
+    private val hashFetchHandler: RedisHashFetchHandler
 ) {
 
     @Around("@annotation(redisHashGet)")
@@ -45,5 +51,13 @@ class RedisHashAspect(
     @Around("@annotation(redisHashRefresh)")
     fun handle(joinPoint: ProceedingJoinPoint, redisHashRefresh: RedisHashRefresh) =
         hashRefreshHandler.handle(joinPoint, redisHashRefresh)
+
+    @Around("@annotation(redisHashLen)")
+    fun handle(joinPoint: ProceedingJoinPoint, redisHashLen: RedisHashLen) =
+        hashLenHandler.handle(joinPoint, redisHashLen)
+
+    @Around("@annotation(redisHashFetch)")
+    fun handle(joinPoint: ProceedingJoinPoint, redisHashFetch: RedisHashFetch) =
+        hashFetchHandler.handle(joinPoint, redisHashFetch)
 
 }
