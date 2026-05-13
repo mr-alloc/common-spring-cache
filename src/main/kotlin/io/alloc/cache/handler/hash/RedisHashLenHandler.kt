@@ -15,8 +15,8 @@ class RedisHashLenHandler(
         val signature = joinPoint.signature as MethodSignature
         val paramMap = getParamMap(signature.method, joinPoint.args)
 
-        if (!Number::class.java.isAssignableFrom(signature.method.returnType))
-            throw IllegalStateException("${signature.method.name}의 반환 타입이 Number가 아닙니다: ${signature.method.returnType}")
+        if (signature.method.returnType !in NUMBER_TYPES)
+            throw IllegalStateException("${signature.method.name}의 반환 타입이 정수가 아닙니다: ${signature.method.returnType}")
 
         val key = resolveKey(annotation.cacheKey, paramMap)
         val size = operation.size(key)
@@ -28,5 +28,11 @@ class RedisHashLenHandler(
             String::class.java, String::class.javaObjectType -> size.toString()
             else -> size
         }
+    }
+    companion object {
+        private val NUMBER_TYPES = setOf(
+            Int::class.java, Int::class.javaObjectType,
+            Long::class.java, Long::class.javaObjectType,
+        )
     }
 }
