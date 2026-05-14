@@ -69,6 +69,22 @@ abstract class CacheHandler<T> {
         }
     }
 
+    protected fun resolveCollectionKey(paramMap: Map<String, Any?>, expression: String): List<String> {
+        // "{channels.$.id}" 파싱
+        val inner = expression.removeSurrounding("{", "}")  // channels.$.id
+        val (collectionName, _, fieldName) = inner.split(".")  // channels, $, id
+
+        val collection = paramMap[collectionName] as? List<*>
+            ?: throw IllegalArgumentException("$collectionName 은 List 타입이어야 합니다.")
+
+        return collection.map { item ->
+            item!!::class.members
+                .first { it.name == fieldName }
+                .call(item)
+                .toString()
+        }
+    }
+
     protected suspend fun ProceedingJoinPoint.proceedWithSuspend(): Any? {
         return when (val result = proceed()) {
             is Mono<*> -> result.awaitSingleOrNull()
