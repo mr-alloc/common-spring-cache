@@ -1,6 +1,7 @@
 package io.alloc.cache.handler.hash
 
 import io.alloc.cache.annotation.hash.RedisHashEvict
+import kotlinx.coroutines.runBlocking
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.data.redis.core.RedisTemplate
@@ -18,7 +19,7 @@ class RedisHashEvictHandler(
         val key = resolveKey(annotation.cacheKey, paramMap)
         val hashKey = resolveParam(paramMap, annotation.hashKey).toString()
 
-        val result = joinPoint.proceed()
+        val result = runBlocking { joinPoint.proceedWithSuspend() } ?: return null
 
         operation.delete(key, hashKey)
 

@@ -4,6 +4,8 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.springframework.expression.ExpressionParser
 import org.springframework.expression.spel.standard.SpelExpressionParser
 import org.springframework.expression.spel.support.StandardEvaluationContext
+import reactor.core.publisher.Mono
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import java.lang.reflect.Method
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -64,6 +66,13 @@ abstract class CacheHandler<T> {
         } catch (e: UnsupportedOperationException) {
             // void, array 등 kotlin 변환 불가한 경우
             null
+        }
+    }
+
+    protected suspend fun ProceedingJoinPoint.proceedWithSuspend(): Any? {
+        return when (val result = proceed()) {
+            is Mono<*> -> result.awaitSingleOrNull()
+            else -> result
         }
     }
 

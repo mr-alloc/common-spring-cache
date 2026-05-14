@@ -1,6 +1,7 @@
 package io.alloc.cache.handler.hash
 
 import io.alloc.cache.annotation.hash.RedisHashGetAll
+import kotlinx.coroutines.runBlocking
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.data.redis.core.RedisTemplate
@@ -29,7 +30,7 @@ class RedisHashGetAllHandler(
         }
 
         // 캐시 미스 → 원본 실행 (Map<String, *> 기대)
-        val result = (joinPoint.proceed() as? Map<*, *>) ?: return null
+        val result = (runBlocking { joinPoint.proceedWithSuspend() } as? Map<*, *>) ?: return null
 
         val toStore = result.entries.associate { (k, v) ->
             k.toString() to objectMapper.writeValueAsString(v)

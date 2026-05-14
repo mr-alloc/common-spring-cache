@@ -1,6 +1,7 @@
 package io.alloc.cache.handler.hash
 
 import io.alloc.cache.annotation.hash.RedisHashSet
+import kotlinx.coroutines.runBlocking
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.data.redis.core.RedisTemplate
@@ -21,7 +22,7 @@ class RedisHashSetHandler(
         val key = resolveKey(annotation.cacheKey, paramMap)
         val hashKey = resolveParam(paramMap, annotation.hashKey).toString()
 
-        val result = joinPoint.proceed() ?: return null
+        val result = runBlocking { joinPoint.proceedWithSuspend() } ?: return null
         operation.put(key, hashKey, objectMapper.writeValueAsString(result))
         if (annotation.ttl > 0) {
             redisTemplate.expire(key, annotation.ttl, TimeUnit.SECONDS)

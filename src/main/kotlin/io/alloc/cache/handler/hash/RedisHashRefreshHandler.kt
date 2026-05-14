@@ -3,6 +3,7 @@ package io.alloc.cache.handler.hash
 import io.alloc.cache.annotation.hash.RedisHashRefresh
 import io.alloc.cache.common.CacheHandler
 import io.alloc.cache.common.exception.CacheProceedNullException
+import kotlinx.coroutines.runBlocking
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.data.redis.core.RedisTemplate
@@ -25,7 +26,7 @@ class RedisHashRefreshHandler(
         val key = resolveKey(annotation.cacheKey, paramMap)
 
         //리프레시는 원본 결과를 먼저 실행
-        val result = joinPoint.proceed() ?: run {
+        val result = runBlocking { joinPoint.proceedWithSuspend() } ?: run {
             if (!annotation.nullable)
                 throw CacheProceedNullException(signature.method.name)
             return null
