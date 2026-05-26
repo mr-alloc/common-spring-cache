@@ -3,9 +3,8 @@ package io.alloc.cache.annotation.zset
 import kotlin.reflect.KClass
 
 /**
- *  Redis ZADD (파라미터로 받은 값을 ZSet score에 저장)
- *  저장 성공여부를 반환(Boolean)
- * @see io.alloc.cache.handler.zset.RedisZSetSetHandler
+ *  Redis ZSCORE (조회 후 없다면 원본 결과 반환)
+ * @see io.alloc.cache.handler.zset.RedisZSetScoreHandler
  *
  * @param cacheKey      (SpEL) Redis 키 템플릿
  * @param member        (SpEL) Redis ZSet 멤버 템플릿
@@ -14,7 +13,7 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class RedisZSetGet(
+annotation class RedisZSetScore(
     val cacheKey: String,
     val member: String,
     val memberType: KClass<*> = String::class,
