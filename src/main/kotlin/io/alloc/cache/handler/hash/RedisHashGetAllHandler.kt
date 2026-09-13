@@ -25,7 +25,8 @@ class RedisHashGetAllHandler(
         if (cached.isNotEmpty()) {
             // 반환 타입에서 value 의 제네릭 타입 추론
             return cached.entries.associate { entry ->
-                entry.key to objectMapper.readValue(entry.value, annotation.valueType.java)
+                val type = signature.method.resolveReturnType()?.java ?: signature.returnType
+                entry.key to objectMapper.readValue(entry.value, type)
             }
         }
 

@@ -21,8 +21,10 @@ class RedisGetHandler(
         val paramMap = getParamMap(signature.method, joinPoint.args)
 
         val key = resolveKey(annotation.cacheKey, paramMap)
+
+        val type = signature.method.resolveReturnType()?.java ?: signature.returnType
         operation.get(key)?.let { found ->
-            return objectMapper.readValue(found, signature.returnType)
+            return objectMapper.readValue(found, type)
         }
 
         //캐시 미스 -> 원본 메서드 실행

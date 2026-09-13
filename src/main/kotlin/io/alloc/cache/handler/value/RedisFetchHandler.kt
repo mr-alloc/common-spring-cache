@@ -20,8 +20,10 @@ class RedisFetchHandler(
         val paramMap = getParamMap(signature.method, joinPoint.args)
 
         val key = resolveKey(annotation.cacheKey, paramMap)
+
+        val type = signature.method.resolveReturnType()?.java ?: signature.returnType
         operation.get(key)?.let { found ->
-            return objectMapper.readValue(found, signature.returnType)
+            return objectMapper.readValue(found, type)
         }
         // 캐시 미스 시 원본 메서드를 실행하지 않고 null 반환 (의도된 동작)
         return null
