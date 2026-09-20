@@ -21,6 +21,6 @@ class RedisHashDeleteHandler(
             listOf(resolveParam(paramMap, annotation.hashKey).toString())
         }.toTypedArray()
 
-        return operation.delete(key, hashKeys)
+        return operation.delete(key, *hashKeys)
     }
 }

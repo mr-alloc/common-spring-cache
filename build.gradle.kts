@@ -68,7 +68,7 @@ val publishProps = Properties().apply {
 }
 
 group = publishProps.getProperty("GROUP_ID")
-version = findProperty("VERSION") as? String ?: ""
+version = findProperty("VERSION") as? String ?: "0.0.1-LOCAL"
 
 publishing {
     publications {
