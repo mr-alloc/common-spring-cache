@@ -2,8 +2,8 @@ name: publish-to-repository
 run-name: Publish artifacts to repository
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*'
 jobs:
   publish-artifact-to-repository:
     runs-on: ubuntu-24.04
@@ -18,19 +18,7 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
 
-      - name: Check deploy condition And Setting Version
-        id: check_condition
-        run: |
-          # 현재 HEAD에 태그가 있는지 확인
-          TAG_NAME=$(git describe --exact-match --tags HEAD 2>/dev/null || echo "")
-          VERSION=${TAG_NAME#v}
-          if [[ -n $VERSION ]]; then
-            echo "has_version_tag=true" >> $GITHUB_OUTPUT
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Release to Maven central 저장소 배포
-        if: steps.check_condition.outputs.has_version_tag == 'true'  # 조건 추가
         env:
           JRELEASER_MAVENCENTRAL_USERNAME  : ${{ secrets.MAVEN_USERNAME }}
           JRELEASER_MAVENCENTRAL_PASSWORD : ${{ secrets.MAVEN_CENTRAL_TOKEN }}
@@ -39,7 +27,7 @@ jobs:
           JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
           JRELEASER_PROJECT_VERSION: ${{ steps.check_condition.outputs.version }}
-          VERSION: ${{ steps.check_condition.outputs.version }}
+          VERSION: ${{ github.ref_name }}
         run: |
           export GPG_TTY=$(tty)
           VERSION="${{ steps.check_condition.outputs.version }}"
